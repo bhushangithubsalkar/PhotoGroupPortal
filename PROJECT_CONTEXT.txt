@@ -1,0 +1,188 @@
+================================================================================
+PHOTO GROUP PORTAL — PROJECT CONTEXT & HANDOFF DOCUMENT
+================================================================================
+
+1. PROJECT PURPOSE
+Photo Group Portal is a full-stack platform for photographers to host event media.
+Photographers create isolated rooms and upload bulk photos. Face detection and
+embeddings process photos asynchronously. Event attendees scan a room QR code,
+initiate a WhatsApp selfie workflow, and receive a secure expiring gallery link
+containing only their matched photographs.
+
+2. CURRENT DAY & INCREMENT
+Current Day: Day 1 (Phase 1 — Foundation)
+Status: Completed & Runnable
+
+3. CURRENT STATUS
+- Overall System: WORKING
+- Backend Foundation: COMPLETE
+- Database Engine & ORM: COMPLETE (PostgreSQL ready + SQLite dev fallback)
+- Frontend Foundation: COMPLETE
+- API Health Endpoint: COMPLETE & VERIFIED
+- Automated Tests: 2/2 PASSED
+
+4. TECHNOLOGY STACK & VERSIONS
+- Python: 3.13.14
+- Backend Framework: FastAPI 0.141.1
+- ASGI Server: Uvicorn 0.52.4
+- ORM: SQLAlchemy 2.0.52
+- SQL Driver: psycopg2-binary 2.9.12
+- Frontend Framework: React 19.2.8 + Vite 8.2.2
+- Test Runner: pytest 9.1.1 + httpx 0.28.1
+
+5. RELEVANT PROJECT TREE
+PhotoGroupPortal/
+├── .env.example
+├── .gitignore
+├── PROJECT_CONTEXT.txt
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py (FastAPI app, CORS, router setup)
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   └── health.py (GET /api/v1/health endpoint)
+│   │   └── core/
+│   │       ├── __init__.py
+│   │       ├── config.py (Settings & env configuration)
+│   │       └── database.py (SQLAlchemy engine & DB health ping)
+│   └── requirements.txt
+├── database/
+│   ├── init_db.sql (PostgreSQL initialization schema)
+│   └── README.md
+├── docs/
+│   ├── ARCHITECTURE.md
+│   └── DAY1_SETUP.md
+├── frontend/
+│   ├── package.json
+│   ├── vite.config.js (Vite server & /api proxy setup)
+│   └── src/
+│       ├── App.jsx (Health dashboard & connection status UI)
+│       ├── App.css (Dashboard styles)
+│       └── main.jsx
+├── storage/ (Originals and thumbnails base storage)
+├── tests/
+│   ├── __init__.py
+│   └── test_health.py (Smoke & health API tests)
+└── venv/
+
+6. DATABASE SCHEMA SUMMARY
+- `system_health_logs`: id (SERIAL PK), status (VARCHAR), checked_at (TIMESTAMPTZ), details (TEXT).
+- Primary engine target: PostgreSQL (`photo_group_portal`).
+- Automatic local dev fallback: SQLite (`photo_group_portal_fallback.db`).
+
+7. IMPORTANT BACKEND MODULES
+- `backend/app/main.py`: Entry point configuring FastAPI, CORS middleware, API v1 routes.
+- `backend/app/core/config.py`: Centralized settings reading env variables with defaults.
+- `backend/app/core/database.py`: SQLAlchemy sessionmaker, `get_db` dependency, and health ping function `check_database_connection()`.
+- `backend/app/api/health.py`: Route handler for `/api/v1/health`.
+
+8. IMPORTANT FRONTEND COMPONENTS
+- `frontend/src/App.jsx`: Main React component displaying backend connection badge, database health metrics, system details, and status refresh button.
+
+9. API ENDPOINTS (CURRENTLY IMPLEMENTED)
+- `GET /`: API welcome message and route links.
+- `GET /api/v1/health`: System health status, version, timestamp, environment, and DB connection status.
+
+10. KEY CONFIGURATION VALUES
+- `APP_NAME`: "Photo Group Portal"
+- `APP_ENV`: "development"
+- `PORT`: 8000
+- `API_V1_STR`: "/api/v1"
+- `DATABASE_URL`: "postgresql://postgres:postgres@localhost:5432/photo_group_portal"
+- `CORS_ORIGINS`: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"]
+
+11. REQUIRED ENVIRONMENT VARIABLES
+- `APP_NAME`
+- `APP_ENV`
+- `PORT`
+- `HOST`
+- `DEBUG`
+- `API_V1_STR`
+- `DATABASE_URL`
+- `CORS_ORIGINS`
+- `STORAGE_DIR`
+
+12. QUEUE & BACKGROUND WORKERS
+- Not implemented in Day 1 (Scheduled for Phase 5).
+
+13. STORAGE PATHS & CONVENTIONS
+- Storage root: `./storage`
+- Subdirectories created for future phases: `./storage/originals/`, `./storage/thumbnails/`, `./storage/temp/`.
+
+14. FACE-PROCESSING WORKFLOW
+- Not implemented in Day 1 (Scheduled for Phase 7–8).
+
+15. IMAGE-QUALITY WORKFLOW
+- Not implemented in Day 1 (Scheduled for Phase 6).
+
+16. AUTHENTICATION & AUTHORIZATION RULES
+- Not implemented in Day 1 (Scheduled for Phase 2).
+
+17. ROOM-TOKEN & QR FLOW
+- Not implemented in Day 1 (Scheduled for Phase 3).
+
+18. GALLERY-TOKEN & URL FLOW
+- Not implemented in Day 1 (Scheduled for Phase 9).
+
+19. WHATSAPP INTEGRATION STATE
+- Not implemented in Day 1 (Scheduled for Phase 10).
+
+20. KEY FUNCTIONS & RESPONSIBILITIES
+- `check_database_connection()`: Tests SQL connectivity and automatically toggles SQLite fallback if PostgreSQL is unreachable.
+- `get_health()`: Assembles system and database diagnostics for `/api/v1/health`.
+- `fetchHealth()` (React): Client-side fetcher retrieving backend status via proxy or direct URI.
+
+21. DATA FLOW (DAY 1)
+User loads React UI -> React issues GET request to `/api/v1/health` -> FastAPI backend checks SQL database via SQLAlchemy ping -> Backend returns status JSON -> React UI renders connection badges and metrics.
+
+22. TESTS & RESULTS
+- Test file: `tests/test_health.py`
+- Command: `.\venv\Scripts\python.exe -m pytest tests/ -v`
+- Results: 2 passed in 0.95s (`test_root_endpoint`, `test_health_endpoint`).
+
+23. KNOWN BUGS / ISSUES
+- None.
+
+24. PENDING TASKS FOR NEXT INCREMENT (DAY 2)
+- Enhance backend & frontend API baseline connection.
+- Prepare user database models foundation and security structures for authentication.
+
+25. ARCHITECTURAL DECISIONS
+- Used FastAPI for high-performance async capabilities and automatic OpenAPI documentation.
+- Included automatic SQLite fallback in `database.py` so local developers can immediately build and run tests without requiring a running PostgreSQL daemon.
+- Configured Vite proxy in `vite.config.js` to eliminate CORS friction during local frontend development.
+
+26. EXACT COMMANDS
+- **Install backend dependencies**: `.\venv\Scripts\pip.exe install -r backend/requirements.txt`
+- **Run Backend**: `.\venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload --port 8000`
+- **Run Tests**: `.\venv\Scripts\python.exe -m pytest tests/ -v`
+- **Build Frontend**: `cd frontend; npm run build`
+- **Run Frontend**: `cd frontend; npm run dev`
+
+27. COMPATIBILITY & ASSUMPTIONS
+- Python 3.10+ and Node.js 18+ required.
+- Standard Windows PowerShell environment supported.
+
+28. FILES CHANGED IN LATEST INCREMENT (DAY 1)
+- `[NEW] .gitignore`
+- `[NEW] .env.example`
+- `[NEW] .env`
+- `[NEW] backend/requirements.txt`
+- `[NEW] backend/app/__init__.py`
+- `[NEW] backend/app/main.py`
+- `[NEW] backend/app/core/__init__.py`
+- `[NEW] backend/app/core/config.py`
+- `[NEW] backend/app/core/database.py`
+- `[NEW] backend/app/api/__init__.py`
+- `[NEW] backend/app/api/health.py`
+- `[NEW] database/init_db.sql`
+- `[NEW] database/README.md`
+- `[NEW] docs/ARCHITECTURE.md`
+- `[NEW] docs/DAY1_SETUP.md`
+- `[NEW] tests/__init__.py`
+- `[NEW] tests/test_health.py`
+- `[MODIFY] frontend/vite.config.js`
+- `[MODIFY] frontend/src/App.jsx`
+- `[MODIFY] frontend/src/App.css`
+- `[MODIFY] PROJECT_CONTEXT.txt`
