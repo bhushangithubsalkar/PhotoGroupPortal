@@ -10,16 +10,16 @@ initiate a WhatsApp selfie workflow, and receive a secure expiring gallery link
 containing only their matched photographs.
 
 2. CURRENT DAY & INCREMENT
-Current Day: Day 1 (Phase 1 — Foundation)
+Current Day: Day 2 — Backend/React API Connection
 Status: Completed & Runnable
 
 3. CURRENT STATUS
 - Overall System: WORKING
-- Backend Foundation: COMPLETE
-- Database Engine & ORM: COMPLETE (PostgreSQL ready + SQLite dev fallback)
-- Frontend Foundation: COMPLETE
-- API Health Endpoint: COMPLETE & VERIFIED
-- Automated Tests: 2/2 PASSED
+- Backend Foundation: COMPLETE (FastAPI mounted at `/api`)
+- Frontend Architecture: COMPLETE (Modular React structure with API client)
+- API Connection: COMPLETE & VERIFIED (`GET /api/health` & `GET /api/v1/health`)
+- Environment Config: COMPLETE (`VITE_API_URL` added)
+- Automated Tests: 3/3 PASSED
 
 4. TECHNOLOGY STACK & VERSIONS
 - Python: 3.13.14
@@ -32,16 +32,17 @@ Status: Completed & Runnable
 
 5. RELEVANT PROJECT TREE
 PhotoGroupPortal/
+├── .env
 ├── .env.example
 ├── .gitignore
 ├── PROJECT_CONTEXT.txt
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── main.py (FastAPI app, CORS, router setup)
+│   │   ├── main.py (FastAPI app, CORS, /api router setup)
 │   │   ├── api/
 │   │   │   ├── __init__.py
-│   │   │   └── health.py (GET /api/v1/health endpoint)
+│   │   │   └── health.py (GET /api/health & GET /api/v1/health endpoints)
 │   │   └── core/
 │   │       ├── __init__.py
 │   │       ├── config.py (Settings & env configuration)
@@ -54,16 +55,26 @@ PhotoGroupPortal/
 │   ├── ARCHITECTURE.md
 │   └── DAY1_SETUP.md
 ├── frontend/
+│   ├── .env
+│   ├── .env.example
 │   ├── package.json
 │   ├── vite.config.js (Vite server & /api proxy setup)
 │   └── src/
-│       ├── App.jsx (Health dashboard & connection status UI)
-│       ├── App.css (Dashboard styles)
+│       ├── api/
+│       │   └── api.js (Reusable API service module with error handling)
+│       ├── components/
+│       │   ├── Header.jsx (Navbar header component)
+│       │   ├── Footer.jsx (Footer component)
+│       │   └── StatusBadge.jsx (Reusable indicator badge)
+│       ├── pages/
+│       │   └── HomePage.jsx (Connection status dashboard page)
+│       ├── App.jsx (App shell component)
+│       ├── App.css (Global and dashboard layout styles)
 │       └── main.jsx
 ├── storage/ (Originals and thumbnails base storage)
 ├── tests/
 │   ├── __init__.py
-│   └── test_health.py (Smoke & health API tests)
+│   └── test_health.py (Smoke & health API tests for /api/health & /api/v1/health)
 └── venv/
 
 6. DATABASE SCHEMA SUMMARY
@@ -72,17 +83,22 @@ PhotoGroupPortal/
 - Automatic local dev fallback: SQLite (`photo_group_portal_fallback.db`).
 
 7. IMPORTANT BACKEND MODULES
-- `backend/app/main.py`: Entry point configuring FastAPI, CORS middleware, API v1 routes.
-- `backend/app/core/config.py`: Centralized settings reading env variables with defaults.
-- `backend/app/core/database.py`: SQLAlchemy sessionmaker, `get_db` dependency, and health ping function `check_database_connection()`.
-- `backend/app/api/health.py`: Route handler for `/api/v1/health`.
+- `backend/app/main.py`: Main FastAPI app mounting `/api` router, CORS middleware, and root endpoint.
+- `backend/app/core/config.py`: Configuration settings reading environment variables.
+- `backend/app/core/database.py`: SQLAlchemy sessionmaker, `get_db` dependency, and connection health checker.
+- `backend/app/api/health.py`: Route handlers for `GET /api/health` and `GET /api/v1/health`.
 
-8. IMPORTANT FRONTEND COMPONENTS
-- `frontend/src/App.jsx`: Main React component displaying backend connection badge, database health metrics, system details, and status refresh button.
+8. IMPORTANT FRONTEND MODULES & COMPONENTS
+- `frontend/src/api/api.js`: Central API client module reading `VITE_API_URL` with network error isolation and timeouts.
+- `frontend/src/pages/HomePage.jsx`: Main dashboard page fetching and rendering backend connection status ("Connected" / "Disconnected").
+- `frontend/src/components/Header.jsx`: Application header navbar.
+- `frontend/src/components/Footer.jsx`: Application footer.
+- `frontend/src/components/StatusBadge.jsx`: Reusable status badge element.
 
 9. API ENDPOINTS (CURRENTLY IMPLEMENTED)
-- `GET /`: API welcome message and route links.
-- `GET /api/v1/health`: System health status, version, timestamp, environment, and DB connection status.
+- `GET /`: API welcome message and documentation links.
+- `GET /api/health`: Basic status response `{"status": "ok", "service": "Photo Group Portal API"}`.
+- `GET /api/v1/health`: Detailed system health status, version, timestamp, environment, and DB connection state.
 
 10. KEY CONFIGURATION VALUES
 - `APP_NAME`: "Photo Group Portal"
@@ -91,6 +107,7 @@ PhotoGroupPortal/
 - `API_V1_STR`: "/api/v1"
 - `DATABASE_URL`: "postgresql://postgres:postgres@localhost:5432/photo_group_portal"
 - `CORS_ORIGINS`: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"]
+- `VITE_API_URL`: "http://localhost:8000"
 
 11. REQUIRED ENVIRONMENT VARIABLES
 - `APP_NAME`
@@ -101,60 +118,61 @@ PhotoGroupPortal/
 - `API_V1_STR`
 - `DATABASE_URL`
 - `CORS_ORIGINS`
+- `VITE_API_URL`
 - `STORAGE_DIR`
 
 12. QUEUE & BACKGROUND WORKERS
-- Not implemented in Day 1 (Scheduled for Phase 5).
+- Not implemented in Day 2 (Scheduled for Phase 5).
 
 13. STORAGE PATHS & CONVENTIONS
-- Storage root: `./storage`
-- Subdirectories created for future phases: `./storage/originals/`, `./storage/thumbnails/`, `./storage/temp/`.
+- Storage root: `./storage` (`./storage/originals/`, `./storage/thumbnails/`, `./storage/temp/`).
 
 14. FACE-PROCESSING WORKFLOW
-- Not implemented in Day 1 (Scheduled for Phase 7–8).
+- Not implemented in Day 2 (Scheduled for Phase 7–8).
 
 15. IMAGE-QUALITY WORKFLOW
-- Not implemented in Day 1 (Scheduled for Phase 6).
+- Not implemented in Day 2 (Scheduled for Phase 6).
 
 16. AUTHENTICATION & AUTHORIZATION RULES
-- Not implemented in Day 1 (Scheduled for Phase 2).
+- Not implemented in Day 2 (Scheduled for Phase 2 auth / Phase 1 Phase 2 bridge).
 
 17. ROOM-TOKEN & QR FLOW
-- Not implemented in Day 1 (Scheduled for Phase 3).
+- Not implemented in Day 2 (Scheduled for Phase 3).
 
 18. GALLERY-TOKEN & URL FLOW
-- Not implemented in Day 1 (Scheduled for Phase 9).
+- Not implemented in Day 2 (Scheduled for Phase 9).
 
 19. WHATSAPP INTEGRATION STATE
-- Not implemented in Day 1 (Scheduled for Phase 10).
+- Not implemented in Day 2 (Scheduled for Phase 10).
 
 20. KEY FUNCTIONS & RESPONSIBILITIES
-- `check_database_connection()`: Tests SQL connectivity and automatically toggles SQLite fallback if PostgreSQL is unreachable.
-- `get_health()`: Assembles system and database diagnostics for `/api/v1/health`.
-- `fetchHealth()` (React): Client-side fetcher retrieving backend status via proxy or direct URI.
+- `get_basic_health()`: Serves `GET /api/health` status.
+- `get_detailed_health()`: Serves `GET /api/v1/health` status.
+- `getHealthStatus()`: Async frontend function fetching basic health from backend.
+- `getDetailedHealth()`: Async frontend function fetching detailed health from backend.
 
-21. DATA FLOW (DAY 1)
-User loads React UI -> React issues GET request to `/api/v1/health` -> FastAPI backend checks SQL database via SQLAlchemy ping -> Backend returns status JSON -> React UI renders connection badges and metrics.
+21. DATA FLOW (DAY 2)
+React UI -> `HomePage.jsx` -> `api.js` -> HTTP GET to `VITE_API_URL/api/health` -> FastAPI backend -> Response `{status: "ok", service: "Photo Group Portal API"}` -> React UI displays "Backend Status: Connected".
+If API is unreachable -> `api.js` catches network error -> React UI displays "Backend Status: Disconnected".
 
 22. TESTS & RESULTS
 - Test file: `tests/test_health.py`
 - Command: `.\venv\Scripts\python.exe -m pytest tests/ -v`
-- Results: 2 passed in 0.95s (`test_root_endpoint`, `test_health_endpoint`).
+- Results: 3 passed in 0.77s (`test_root_endpoint`, `test_api_health_endpoint`, `test_api_v1_health_endpoint`).
 
 23. KNOWN BUGS / ISSUES
 - None.
 
-24. PENDING TASKS FOR NEXT INCREMENT (DAY 2)
-- Enhance backend & frontend API baseline connection.
-- Prepare user database models foundation and security structures for authentication.
+24. PENDING TASKS FOR NEXT INCREMENT (DAY 3)
+- PostgreSQL connection, migrations, and base database models.
 
 25. ARCHITECTURAL DECISIONS
-- Used FastAPI for high-performance async capabilities and automatic OpenAPI documentation.
-- Included automatic SQLite fallback in `database.py` so local developers can immediately build and run tests without requiring a running PostgreSQL daemon.
-- Configured Vite proxy in `vite.config.js` to eliminate CORS friction during local frontend development.
+- Encapsulated API requests inside `frontend/src/api/api.js` using `VITE_API_URL` environment variables instead of scattering raw `fetch()` calls across components.
+- Mounted health router under `/api` in FastAPI to cleanly expose both `/api/health` and `/api/v1/health`.
+- Separated React UI into modular components (`components/Header`, `components/Footer`, `components/StatusBadge`, `pages/HomePage`).
 
 26. EXACT COMMANDS
-- **Install backend dependencies**: `.\venv\Scripts\pip.exe install -r backend/requirements.txt`
+- **Activate Virtual Environment**: `.\venv\Scripts\Activate.ps1`
 - **Run Backend**: `.\venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload --port 8000`
 - **Run Tests**: `.\venv\Scripts\python.exe -m pytest tests/ -v`
 - **Build Frontend**: `cd frontend; npm run build`
@@ -164,25 +182,18 @@ User loads React UI -> React issues GET request to `/api/v1/health` -> FastAPI b
 - Python 3.10+ and Node.js 18+ required.
 - Standard Windows PowerShell environment supported.
 
-28. FILES CHANGED IN LATEST INCREMENT (DAY 1)
-- `[NEW] .gitignore`
-- `[NEW] .env.example`
-- `[NEW] .env`
-- `[NEW] backend/requirements.txt`
-- `[NEW] backend/app/__init__.py`
-- `[NEW] backend/app/main.py`
-- `[NEW] backend/app/core/__init__.py`
-- `[NEW] backend/app/core/config.py`
-- `[NEW] backend/app/core/database.py`
-- `[NEW] backend/app/api/__init__.py`
-- `[NEW] backend/app/api/health.py`
-- `[NEW] database/init_db.sql`
-- `[NEW] database/README.md`
-- `[NEW] docs/ARCHITECTURE.md`
-- `[NEW] docs/DAY1_SETUP.md`
-- `[NEW] tests/__init__.py`
-- `[NEW] tests/test_health.py`
-- `[MODIFY] frontend/vite.config.js`
+28. FILES CHANGED IN LATEST INCREMENT (DAY 2)
+- `[NEW] frontend/.env`
+- `[NEW] frontend/.env.example`
+- `[NEW] frontend/src/api/api.js`
+- `[NEW] frontend/src/components/Header.jsx`
+- `[NEW] frontend/src/components/Footer.jsx`
+- `[NEW] frontend/src/components/StatusBadge.jsx`
+- `[NEW] frontend/src/pages/HomePage.jsx`
+- `[MODIFY] .env.example`
+- `[MODIFY] backend/app/main.py`
+- `[MODIFY] backend/app/api/health.py`
 - `[MODIFY] frontend/src/App.jsx`
 - `[MODIFY] frontend/src/App.css`
+- `[MODIFY] tests/test_health.py`
 - `[MODIFY] PROJECT_CONTEXT.txt`

@@ -10,7 +10,16 @@ def test_root_endpoint():
     assert "message" in data
     assert "health_check" in data
 
-def test_health_endpoint():
+def test_api_health_endpoint():
+    """Test Day 2 required GET /api/health endpoint"""
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "Photo Group Portal API" in data["service"]
+
+def test_api_v1_health_endpoint():
+    """Test detailed GET /api/v1/health endpoint"""
     response = client.get("/api/v1/health")
     assert response.status_code == 200
     data = response.json()

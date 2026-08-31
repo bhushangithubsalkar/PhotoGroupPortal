@@ -14,11 +14,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    openapi_url="/api/v1/openapi.json",
     lifespan=lifespan
 )
 
-# CORS setup for React frontend connection
+# CORS setup allowing React frontend communication
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -27,14 +27,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount Routers
-app.include_router(health_router, prefix=settings.API_V1_STR, tags=["Health"])
+# Mount Router under /api prefix
+app.include_router(health_router, prefix="/api", tags=["Health"])
 
 @app.get("/")
 def root():
     return {
         "message": f"Welcome to {settings.APP_NAME} API",
-        "health_check": f"{settings.API_V1_STR}/health",
+        "health_check": "/api/health",
+        "detailed_health": "/api/v1/health",
         "docs": "/docs"
     }
 
