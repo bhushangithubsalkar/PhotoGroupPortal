@@ -11,6 +11,7 @@ class Settings:
     PORT: int = int(os.getenv("PORT", 8000))
     HOST: str = os.getenv("HOST", "0.0.0.0")
     DEBUG: bool = os.getenv("DEBUG", "True").lower() in ("true", "1", "t")
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO").upper()
     API_V1_STR: str = os.getenv("API_V1_STR", "/api/v1")
     
     DATABASE_URL: str = os.getenv(
@@ -35,5 +36,16 @@ class Settings:
             "http://127.0.0.1:5173",
             "http://localhost:3000",
         ]
+
+    def validate_config(self) -> bool:
+        """
+        Validates core application configuration.
+        Raises ValueError with safe error message if required configuration is invalid.
+        """
+        if not self.DATABASE_URL or not self.DATABASE_URL.strip():
+            raise ValueError("DATABASE_URL configuration is missing or unconfigured.")
+        if not self.APP_NAME or not self.APP_NAME.strip():
+            raise ValueError("APP_NAME configuration is missing.")
+        return True
 
 settings = Settings()
