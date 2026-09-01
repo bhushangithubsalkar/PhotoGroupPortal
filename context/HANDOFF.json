@@ -1,0 +1,46 @@
+{
+  "project": {
+    "name": "Photo Group Portal",
+    "desc": "Event photo hosting with face detection/embeddings & WhatsApp selfie gallery delivery.",
+    "stack": ["Python 3.13", "FastAPI 0.141", "SQLAlchemy 2.0", "PostgreSQL/Alembic", "React 19/Vite 8", "pytest"]
+  },
+  "current_state": {
+    "day": 4,
+    "phase": "Phase 1 (Days 1-5: Foundation)",
+    "status": "Runnable & Operational",
+    "active_alembic_head": "cc89915c4a06",
+    "test_suite": "12/12 PASSED (pytest tests/ -v)",
+    "completed": ["Pydantic Settings", "Structured Logging (logs/app.log)", "Duration Middleware", "AppException Hierarchy", "Health Endpoints", "PostgreSQL User/SystemLog models", "React status dashboard"]
+  },
+  "next_increment": {
+    "day": 5,
+    "goal": "Basic authentication foundation & smoke tests"
+  },
+  "db_schema": {
+    "user": ["id (PK)", "email (UNIQUE)", "password_hash", "role (INDEXED)", "is_active", "created_at", "updated_at"],
+    "system_log": ["id (PK)", "level (INDEXED)", "module", "message", "details", "created_at", "updated_at"]
+  },
+  "implemented_routes": [
+    "GET / -> API Welcome",
+    "GET /api/health -> Basic liveness",
+    "GET /api/health/db -> DB status",
+    "GET /api/health/system -> Service env",
+    "GET /api/v1/health -> System metrics & DB log counter"
+  ],
+  "architecture_rules": {
+    "error_format": "{\"error\": {\"code\": \"STR\", \"message\": \"STR\"}}",
+    "storage": "./storage/{originals,thumbnails,temp}",
+    "config": "backend/app/core/config.py (Pydantic settings with validate_config())"
+  },
+  "directory_map": {
+    "backend/app/": "core/ (config, db, exceptions, logging), api/ (health), db/ (base_class), models/ (user, system_log)",
+    "frontend/src/": "api/ (api.js), components/ (Header, Footer, StatusBadge), pages/ (HomePage)",
+    "tests/": "test_config.py, test_database.py, test_exceptions.py, test_health.py"
+  },
+  "cli_commands": {
+    "backend_run": "uvicorn backend.app.main:app --reload --port 8000",
+    "migrate": "alembic upgrade head",
+    "test": "pytest tests/ -v",
+    "frontend_run": "cd frontend && npm run dev"
+  }
+}
