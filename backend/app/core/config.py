@@ -14,6 +14,14 @@ class Settings:
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO").upper()
     API_V1_STR: str = os.getenv("API_V1_STR", "/api/v1")
     
+    # Security Configuration
+    SECRET_KEY: str = os.getenv(
+        "SECRET_KEY", 
+        "secret-key-change-in-production-environments-123456789"
+    )
+    ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60 * 24 * 8)) # 8 days
+    
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
         "postgresql://postgres:postgres@localhost:5432/photo_group_portal"
@@ -46,6 +54,8 @@ class Settings:
             raise ValueError("DATABASE_URL configuration is missing or unconfigured.")
         if not self.APP_NAME or not self.APP_NAME.strip():
             raise ValueError("APP_NAME configuration is missing.")
+        if not self.SECRET_KEY or not self.SECRET_KEY.strip():
+            raise ValueError("SECRET_KEY configuration is missing.")
         return True
 
 settings = Settings()

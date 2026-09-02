@@ -3,39 +3,41 @@ PHOTO GROUP PORTAL — PROJECT CONTEXT & HANDOFF DOCUMENT
 ================================================================================
 
 1. PROJECT PURPOSE
-Photo Group Portal is a full-stack, AI-powered platform for photographers to host event 
-media. Photographers create room-isolated collections and upload bulk photos. Face detection 
-and vector embeddings process photos asynchronously. Event attendees scan a room QR code, 
-initiate a WhatsApp selfie workflow, and receive a secure, expiring gallery link containing 
-only their matched photographs.
+Photo Group Portal is a full-stack platform for photographers to host event media.
+Photographers create isolated rooms and upload bulk photos. Face detection and
+embeddings process photos asynchronously. Event attendees scan a room QR code,
+initiate a WhatsApp selfie workflow, and receive a secure expiring gallery link
+containing only their matched photographs.
 
 2. CURRENT DAY & INCREMENT
-- Current Day: Day 4 — Configuration, logging, error handling, and health foundation
-- Status: Completed & Verified
+Current Day: Day 5 — Auth & Security Foundation (JWT Authentication & User Endpoints)
+Status: Completed & Runnable
 
-3. CURRENT STATUS & SYSTEM CAPABILITIES
-- Overall System Status: Operational
-- Configuration Management: Centralized via Pydantic Settings with startup validation
-- Structured Logging: Dual console and rotating file logger (`logs/app.log`) with configurable LOG_LEVEL
-- Middleware: Custom request duration logging middleware attached
-- Error Handling: Centralized `AppException` hierarchy delivering uniform JSON error payloads
-- Health Foundation: Comprehensive liveness, database, and system metric endpoints operational
-- Database & ORM: PostgreSQL / SQLAlchemy 2.0 engine initialized with `user` and `system_log` models
-- Database Migrations: Alembic migrations system configured and active (`cc89915c4a06` applied)
-- Frontend Baseline: Modular React 19 + Vite app configured with standard API client
-- Test Suite: 12/12 Automated Pytest tests passing
+3. CURRENT STATUS
+- Overall System: WORKING
+- Security & JWT Auth: COMPLETE (`bcrypt` password hashing, `PyJWT` access token generation, OAuth2 bearer validation)
+- User Endpoints: COMPLETE (`POST /api/v1/auth/login`, `POST /api/v1/users/`, `GET /api/v1/users/me`)
+- Centralized Configuration: COMPLETE (Pydantic/Dotenv Settings with `SECRET_KEY`, `ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`)
+- Structured Logging System: COMPLETE (Console & rotating file logs/app.log)
+- Centralized Error Handling: COMPLETE (AppException hierarchy, safe JSON responses)
+- Health Endpoints Architecture: COMPLETE (`/`, `/api/health`, `/api/health/db`, `/api/health/system`, `/api/v1/health`)
+- PostgreSQL & ORM Engine: COMPLETE (SQLAlchemy models, User table, SystemLog table)
+- Alembic Migration System: COMPLETE (Revision cc89915c4a06 applied)
+- Frontend Architecture: COMPLETE (Modular React structure with API client)
+- Automated Tests: 14/14 PASSED
 
 4. TECHNOLOGY STACK & VERSIONS
-- Runtime: Python 3.13+ / Node.js 18+
-- Backend Framework: FastAPI 0.141+
-- ASGI Server: Uvicorn 0.52+
-- ORM & Driver: SQLAlchemy 2.0+ / psycopg2-binary 2.9+
-- Database Migration: Alembic 1.19+
-- Database Engine: PostgreSQL 15+ (with `pgvector` planned for Phase 8)
-- Frontend Core: React 19 / Vite 8
-- Testing Suite: Pytest 9+ / HTTPX 0.28+
+- Python: 3.13.14
+- Backend Framework: FastAPI 0.141.1
+- Security & Hashing: bcrypt 5.0.0, PyJWT 2.13.0, email-validator 2.3.0, python-multipart 0.0.32
+- ASGI Server: Uvicorn 0.52.4
+- ORM: SQLAlchemy 2.0.52
+- Migration Tool: Alembic 1.19.1
+- SQL Driver: psycopg2-binary 2.9.12
+- Frontend Framework: React 19.2.8 + Vite 8.2.2
+- Test Runner: pytest 9.1.1 + httpx 0.28.1
 
-5. PROJECT REPOSITORY STRUCTURE
+5. RELEVANT PROJECT TREE
 PhotoGroupPortal/
 ├── .env
 ├── .env.example
@@ -48,25 +50,42 @@ PhotoGroupPortal/
 │   └── versions/
 │       └── cc89915c4a06_initial_tables_user_and_systemlog.py
 ├── backend/
-│   └── app/
-│       ├── __init__.py
-│       ├── main.py (FastAPI application initialization, middleware, exception handlers)
-│       ├── api/
-│       │   ├── __init__.py
-│       │   └── health.py (Health check endpoints)
-│       ├── core/
-│       │   ├── __init__.py
-│       │   ├── config.py (Pydantic Settings and startup validation)
-│       │   ├── database.py (SQLAlchemy session & engine setup)
-│       │   ├── exceptions.py (Custom exception hierarchy & formatters)
-│       │   └── logging.py (Rotating file and console logging setup)
-│       ├── db/
-│       │   ├── __init__.py
-│       │   └── base_class.py (Base declarative mixin with IDs & timestamps)
-│       └── models/
-│           ├── __init__.py
-│           ├── system_log.py (SystemLog entity)
-│           └── user.py (User entity)
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py (FastAPI app, CORS, request middleware, exception handlers, v1 routers)
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   ├── deps.py (get_db generator, get_current_user OAuth2 dependency)
+│   │   │   ├── health.py (GET /api/health, /api/health/db, /api/health/system, /api/v1/health)
+│   │   │   └── v1/
+│   │   │       ├── __init__.py
+│   │   │       ├── api.py (Combined v1 router for /auth and /users)
+│   │   │       └── endpoints/
+│   │   │           ├── __init__.py
+│   │   │           ├── auth.py (POST /api/v1/auth/login)
+│   │   │           └── users.py (POST /api/v1/users/ & GET /api/v1/users/me)
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py (Settings, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES)
+│   │   │   ├── database.py (SQLAlchemy engine, get_session, init_db)
+│   │   │   ├── exceptions.py (Custom exceptions & global handlers)
+│   │   │   ├── logging.py (Rotating file & console logging)
+│   │   │   └── security.py (verify_password, get_password_hash, create_access_token)
+│   │   ├── crud/
+│   │   │   ├── __init__.py
+│   │   │   └── crud_user.py (CRUDUser: get_by_email, create, authenticate)
+│   │   ├── db/
+│   │   │   ├── __init__.py
+│   │   │   └── base_class.py (Base mixin with tablename & timestamp fields)
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── system_log.py (SystemLog model)
+│   │   │   └── user.py (User model)
+│   │   └── schemas/
+│   │       ├── __init__.py
+│   │       ├── token.py (Token, TokenPayload schemas)
+│   │       └── user.py (UserBase, UserCreate, UserUpdate, UserRead, UserLogin schemas)
+│   └── requirements.txt
 ├── database/
 │   ├── init_db.sql
 │   └── README.md
@@ -81,7 +100,7 @@ PhotoGroupPortal/
 │   ├── vite.config.js
 │   └── src/
 │       ├── api/
-│       │   └── api.js (Central API client)
+│       │   └── api.js
 │       ├── components/
 │       │   ├── Header.jsx
 │       │   ├── Footer.jsx
@@ -94,51 +113,149 @@ PhotoGroupPortal/
 ├── logs/
 │   └── app.log
 ├── storage/
-│   ├── originals/
-│   ├── thumbnails/
-│   └── temp/
 ├── tests/
 │   ├── __init__.py
-│   ├── test_config.py
-│   ├── test_database.py
-│   ├── test_exceptions.py
-│   └── test_health.py
-└── requirements.txt
+│   ├── test_auth.py (JWT authentication, hashing, user registration, login & protected /me route tests)
+│   ├── test_config.py (Configuration & validation tests)
+│   ├── test_database.py (Base model, User CRUD, and SystemLog tests)
+│   ├── test_exceptions.py (Global exception & 404 handler tests)
+│   └── test_health.py (Health API tests)
+└── venv/
 
 6. DATABASE SCHEMA SUMMARY
-- `user`: `id` (UUID/PK), `email` (VARCHAR, Unique, Indexed), `password_hash` (VARCHAR), `role` (VARCHAR, Indexed), `is_active` (BOOLEAN), `created_at` (TIMESTAMPTZ), `updated_at` (TIMESTAMPTZ)
-- `system_log`: `id` (INTEGER/PK), `level` (VARCHAR, Indexed), `module` (VARCHAR), `message` (TEXT), `details` (JSONB/TEXT), `created_at` (TIMESTAMPTZ), `updated_at` (TIMESTAMPTZ)
+- `user`: id (PK), email (UNIQUE), password_hash, role (INDEXED), is_active, created_at, updated_at.
+- `system_log`: id (PK), level (INDEXED), module, message, details, created_at, updated_at.
 
-7. CURRENT API ENDPOINTS
-- `GET /` — API root landing
-- `GET /api/health` — Basic service liveness check
-- `GET /api/health/db` — PostgreSQL connectivity check
-- `GET /api/health/system` — System environment status
-- `GET /api/v1/health` — Detailed diagnostic metrics and database event counter
+7. ALEMBIC MIGRATIONS
+- Active Revision: `cc89915c4a06` (head)
+- Status: Applied
 
-8. ENVIRONMENT CONFIGURATION KEYS
-- `APP_NAME` (string) — "Photo Group Portal"
-- `APP_ENV` (string) — "development" | "production"
-- `HOST` (string) — "127.0.0.1"
-- `PORT` (integer) — 8000
-- `DEBUG` (boolean) — True | False
-- `LOG_LEVEL` (string) — "INFO" | "DEBUG" | "WARNING" | "ERROR"
-- `API_V1_STR` (string) — "/api/v1"
-- `DATABASE_URL` (string) — PostgreSQL connection URI
-- `CORS_ORIGINS` (list[string]) — Allowed frontend domains
-- `VITE_API_URL` (string) — Base backend endpoint for Vite frontend
-- `STORAGE_DIR` (string) — Base storage directory path (`./storage`)
+8. IMPORTANT BACKEND MODULES
+- `backend/app/core/security.py`: Password hashing (`bcrypt`) and JWT token creation (`PyJWT`).
+- `backend/app/schemas/user.py` & `token.py`: Pydantic v2 data validation schemas.
+- `backend/app/crud/crud_user.py`: Database operations for user lookup, registration, and authentication.
+- `backend/app/api/deps.py`: Dependency `get_current_user` enforcing OAuth2 bearer authentication.
+- `backend/app/api/v1/endpoints/auth.py`: OAuth2 login route `POST /api/v1/auth/login`.
+- `backend/app/api/v1/endpoints/users.py`: User registration `POST /api/v1/users/` and profile `GET /api/v1/users/me`.
 
-9. CORE FUNCTIONS & ARCHITECTURAL RESPONSIBILITIES
-- `validate_config()`: Validates critical environment parameters upon application load.
-- `setup_logging()`: Configures standard stream handlers and rotating file handlers (`logs/app.log`).
-- `app_exception_handler()`: Intercepts unhandled exceptions and formats output into standard response contract: `{"error": {"code": "...", "message": "..."}}`.
-- `log_requests()`: ASGI middleware calculating and logging request execution duration.
+9. API ENDPOINTS (CURRENTLY IMPLEMENTED)
+- `GET /`: Root API welcome message.
+- `GET /api/health`: Liveness probe `{"status": "ok", "service": "Photo Group Portal API"}`.
+- `GET /api/health/db`: Dedicated DB status `{"status": "ok", "database": "connected"}`.
+- `GET /api/health/system`: System status `{"status": "ok", "service": "...", "environment": "development"}`.
+- `GET /api/v1/health`: Detailed system metrics.
+- `POST /api/v1/auth/login`: OAuth2 login endpoint returning JWT access token.
+- `POST /api/v1/users/`: Registration endpoint for creating new users (default role: 'user').
+- `GET /api/v1/users/me`: Protected route returning authenticated user profile.
 
-10. VERIFICATION & COMMAND REFERENCE
-- Activate Environment (Windows): `.\venv\Scripts\Activate.ps1`
-- Activate Environment (POSIX): `source venv/bin/activate`
-- Run Backend: `python -m uvicorn backend.app.main:app --reload --port 8000`
-- Apply Migrations: `python -m alembic upgrade head`
-- Execute Tests: `python -m pytest tests/ -v`
-- Run Frontend Dev Server: `cd frontend && npm run dev`
+10. KEY CONFIGURATION VALUES
+- `APP_NAME`: "Photo Group Portal"
+- `APP_ENV`: "development"
+- `PORT`: 8000
+- `DEBUG`: True
+- `LOG_LEVEL`: "INFO"
+- `API_V1_STR`: "/api/v1"
+- `SECRET_KEY`: "secret-key-change-in-production-environments-123456789"
+- `ALGORITHM`: "HS256"
+- `ACCESS_TOKEN_EXPIRE_MINUTES`: 11520
+- `DATABASE_URL`: "postgresql://postgres:postgres@localhost:5432/photo_group_portal"
+- `CORS_ORIGINS`: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"]
+- `VITE_API_URL`: "http://localhost:8000"
+
+11. REQUIRED ENVIRONMENT VARIABLES
+- `DATABASE_URL`
+- `SECRET_KEY`
+- `ALGORITHM`
+- `ACCESS_TOKEN_EXPIRE_MINUTES`
+- `APP_NAME`
+- `APP_ENV`
+- `PORT`
+- `HOST`
+- `DEBUG`
+- `LOG_LEVEL`
+- `API_V1_STR`
+- `CORS_ORIGINS`
+- `VITE_API_URL`
+- `STORAGE_DIR`
+
+12. QUEUE & BACKGROUND WORKERS
+- Scheduled for Phase 5.
+
+13. STORAGE PATHS & CONVENTIONS
+- `./storage/originals/`, `./storage/thumbnails/`, `./storage/temp/`.
+
+14. FACE-PROCESSING WORKFLOW
+- Scheduled for Phase 7–8.
+
+15. IMAGE-QUALITY WORKFLOW
+- Scheduled for Phase 6.
+
+16. AUTHENTICATION & AUTHORIZATION RULES
+- JWT Bearer Authentication enabled. Users register via `POST /api/v1/users/` and authenticate via `POST /api/v1/auth/login`. Protected endpoints require `Authorization: Bearer <token>`.
+
+17. ROOM-TOKEN & QR FLOW
+- Scheduled for Phase 3 (Days 11–15).
+
+18. GALLERY-TOKEN & URL FLOW
+- Scheduled for Phase 9 (Days 44–48).
+
+19. WHATSAPP INTEGRATION STATE
+- Scheduled for Phase 10 (Days 49–52).
+
+20. KEY FUNCTIONS & RESPONSIBILITIES
+- `verify_password()` & `get_password_hash()`: Direct `bcrypt` password verification and hashing.
+- `create_access_token()`: Signs JWT access tokens with subject `sub` and expiration.
+- `get_current_user()`: Validates OAuth2 bearer tokens and returns DB `User` object.
+- `crud_user.authenticate()`: Verifies email & password credentials against database.
+
+21. DATA FLOW (DAY 5)
+User submits credentials to `POST /api/v1/auth/login` -> `crud_user.authenticate()` checks email & bcrypt password hash -> Backend creates JWT access token -> Client sends token in header `Authorization: Bearer <token>` to `GET /api/v1/users/me` -> `get_current_user()` decodes token and returns user profile.
+
+22. TESTS & RESULTS
+- Test files: `tests/test_auth.py`, `tests/test_config.py`, `tests/test_database.py`, `tests/test_exceptions.py`, `tests/test_health.py`
+- Command: `.\venv\Scripts\python.exe -m pytest tests/ -v`
+- Results: 14 passed in 2.65s.
+
+23. KNOWN BUGS / ISSUES
+- None.
+
+24. PENDING TASKS FOR NEXT INCREMENT (DAY 6 / PHASE 2)
+- User Model refinement & Authentication enhancements for Phase 2.
+
+25. ARCHITECTURAL DECISIONS
+- Used direct `bcrypt` hashing for 100% stability and zero deprecation warnings on Python 3.13.
+- Utilized Pydantic v2 `ConfigDict(from_attributes=True)` for seamless ORM-to-schema serialization.
+- Followed standard FastAPI clean architecture (`core/`, `crud/`, `schemas/`, `api/deps.py`, `api/v1/endpoints/`).
+
+26. EXACT COMMANDS
+- **Activate Virtual Environment**: `.\venv\Scripts\Activate.ps1`
+- **Run Backend**: `.\venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload --port 8000`
+- **Run Alembic Migration**: `.\venv\Scripts\python.exe -m alembic upgrade head`
+- **Run Tests**: `.\venv\Scripts\python.exe -m pytest tests/ -v`
+- **Build Frontend**: `cd frontend; npm run build`
+- **Run Frontend**: `cd frontend; npm run dev`
+
+27. COMPATIBILITY & ASSUMPTIONS
+- Python 3.10+ and Node.js 18+ required.
+- Standard Windows PowerShell environment supported.
+
+28. FILES CHANGED IN LATEST INCREMENT (DAY 5)
+- `[NEW] backend/app/core/security.py`
+- `[NEW] backend/app/schemas/__init__.py`
+- `[NEW] backend/app/schemas/token.py`
+- `[NEW] backend/app/schemas/user.py`
+- `[NEW] backend/app/crud/__init__.py`
+- `[NEW] backend/app/crud/crud_user.py`
+- `[NEW] backend/app/api/deps.py`
+- `[NEW] backend/app/api/v1/__init__.py`
+- `[NEW] backend/app/api/v1/api.py`
+- `[NEW] backend/app/api/v1/endpoints/__init__.py`
+- `[NEW] backend/app/api/v1/endpoints/auth.py`
+- `[NEW] backend/app/api/v1/endpoints/users.py`
+- `[NEW] tests/test_auth.py`
+- `[MODIFY] .env.example`
+- `[MODIFY] backend/requirements.txt`
+- `[MODIFY] backend/app/core/config.py`
+- `[MODIFY] backend/app/core/database.py`
+- `[MODIFY] backend/app/main.py`
+- `[MODIFY] PROJECT_CONTEXT.txt`

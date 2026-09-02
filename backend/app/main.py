@@ -16,6 +16,7 @@ from backend.app.core.exceptions import (
     unhandled_exception_handler
 )
 from backend.app.api.health import router as health_router
+from backend.app.api.v1.api import api_v1_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -64,8 +65,11 @@ app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
-# Mount Routers under /api
+# Mount Health Routers under /api
 app.include_router(health_router, prefix="/api", tags=["Health"])
+
+# Mount API V1 Routers under /api/v1
+app.include_router(api_v1_router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():

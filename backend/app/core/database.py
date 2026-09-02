@@ -21,22 +21,19 @@ def get_engine(db_url: str):
 db_url = settings.DATABASE_URL
 current_engine = get_engine(db_url)
 _session_factory = sessionmaker(autocommit=False, autoflush=False, bind=current_engine)
-
-def get_session():
-    """Returns a new DB session bound to the active engine."""
-    global current_engine, _session_factory
-    return _session_factory()
+_is_initialized = False
 
 def check_database_connection() -> dict:
     """
     Ping database connection. Returns status dictionary.
     Includes fallback check to SQLite if PostgreSQL is unreachable in dev/test.
     """
-    global current_engine, _session_factory
+    global current_engine, _session_factory, _is_initialized
     
     try:
         with current_engine.connect() as conn:
             conn.execute(text("SELECT 1"))
+        _is_initialized = True
         return {
             "status": "connected",
             "dialect": current_engine.dialect.name,
@@ -54,6 +51,7 @@ def check_database_connection() -> dict:
             
             current_engine = fallback_engine
             _session_factory = sessionmaker(autocommit=False, autoflush=False, bind=fallback_engine)
+            _is_initialized = True
             
             return {
                 "status": "connected (sqlite fallback)",
@@ -68,6 +66,13 @@ def check_database_connection() -> dict:
                 "url": str(primary_exc),
                 "error": f"Primary error: {primary_exc}; Fallback error: {fallback_exc}"
             }
+
+def get_session():
+    """Returns a new DB session bound to the active engine."""
+    global _is_initialized, _session_factory
+    if not _is_initialized:
+        check_database_connection()
+    return _session_factory()
 
 def init_db():
     """

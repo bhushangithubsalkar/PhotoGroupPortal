@@ -10,11 +10,32 @@
     "status": "Runnable & Operational",
     "active_alembic_head": "cc89915c4a06",
     "test_suite": "12/12 PASSED (pytest tests/ -v)",
-    "completed": ["Pydantic Settings", "Structured Logging (logs/app.log)", "Duration Middleware", "AppException Hierarchy", "Health Endpoints", "PostgreSQL User/SystemLog models", "React status dashboard"]
+    "completed": [
+      "Pydantic Settings",
+      "Structured Logging (logs/app.log)",
+      "Duration Middleware",
+      "AppException Hierarchy",
+      "Health Endpoints",
+      "PostgreSQL User/SystemLog models",
+      "React status dashboard"
+    ]
   },
   "next_increment": {
     "day": 5,
     "goal": "Basic authentication foundation & smoke tests"
+  },
+  "documentation_manifest": {
+    "project_context": "PROJECT_CONTEXT.txt",
+    "roadmap": "docs/60_DAY_ROADMAP.md",
+    "architecture_spec": "docs/ARCHITECTURE.md",
+    "setup_guide": "docs/DAY1_SETUP.md"
+  },
+  "entry_points": {
+    "app_main": "backend/app/main.py",
+    "app_config": "backend/app/core/config.py",
+    "db_engine": "backend/app/core/database.py",
+    "frontend_main": "frontend/src/main.jsx",
+    "api_client": "frontend/src/api/api.js"
   },
   "db_schema": {
     "user": ["id (PK)", "email (UNIQUE)", "password_hash", "role (INDEXED)", "is_active", "created_at", "updated_at"],
@@ -32,10 +53,38 @@
     "storage": "./storage/{originals,thumbnails,temp}",
     "config": "backend/app/core/config.py (Pydantic settings with validate_config())"
   },
-  "directory_map": {
-    "backend/app/": "core/ (config, db, exceptions, logging), api/ (health), db/ (base_class), models/ (user, system_log)",
-    "frontend/src/": "api/ (api.js), components/ (Header, Footer, StatusBadge), pages/ (HomePage)",
-    "tests/": "test_config.py, test_database.py, test_exceptions.py, test_health.py"
+  "file_map": {
+    "backend": {
+      "core": {
+        "config": "backend/app/core/config.py",
+        "database": "backend/app/core/database.py",
+        "exceptions": "backend/app/core/exceptions.py",
+        "logging": "backend/app/core/logging.py"
+      },
+      "api": {
+        "health": "backend/app/api/health.py"
+      },
+      "models": {
+        "base": "backend/app/db/base_class.py",
+        "user": "backend/app/models/user.py",
+        "system_log": "backend/app/models/system_log.py"
+      }
+    },
+    "frontend": {
+      "app": "frontend/src/App.jsx",
+      "pages": ["frontend/src/pages/HomePage.jsx"],
+      "components": [
+        "frontend/src/components/Header.jsx",
+        "frontend/src/components/Footer.jsx",
+        "frontend/src/components/StatusBadge.jsx"
+      ]
+    },
+    "tests": [
+      "tests/test_config.py",
+      "tests/test_database.py",
+      "tests/test_exceptions.py",
+      "tests/test_health.py"
+    ]
   },
   "cli_commands": {
     "backend_run": "uvicorn backend.app.main:app --reload --port 8000",
